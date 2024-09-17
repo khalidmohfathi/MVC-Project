@@ -1,4 +1,4 @@
-﻿@model Employee
+﻿@model EmployeeViewModel
 @{
 	ViewData["Title"] = "Details";
 }
@@ -7,7 +7,7 @@
 <br />
 
 <div>
-	<partial name="PartialViews/DetailsEditEmployeePartial"></partial>
+	<partial name="PartialViews/DetailsDeleteEmployeePartial"></partial>
 
 	<a asp-action="Update" asp-route-id="@Model.Id" class="btn btn-primary mt-5">
 		<i class="fa-solid fa-edit"></i> Edit

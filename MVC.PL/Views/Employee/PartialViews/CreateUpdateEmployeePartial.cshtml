@@ -1,4 +1,8 @@
-﻿@model Employee
+﻿@model EmployeeViewModel
+@inject IDepartmentRepository _deptRepo
+@{
+	var departments = new SelectList(_deptRepo.GetAll(), nameof(Department.Id), nameof(Department.Name));
+}
 
 <div>
 	<label class="col-form-label" asp-for="Name">Name: </label>
@@ -36,11 +40,6 @@
 	<span asp-validation-for="PhoneNumber" class="text-danger"></span>
 </div>
 <div>
-	<label class="col-form-label" asp-for="HireDate">HireDate: </label>
-	<input asp-for="HireDate" class="form-control" />
-	<span asp-validation-for="HireDate" class="text-danger"></span>
-</div>
-<div>
 	<label class="col-form-label" asp-for="IsDeleted">IsDeleted: </label>
 	<input asp-for="IsDeleted" class="form-control" />
 	<span asp-validation-for="IsDeleted" class="text-danger"></span>
@@ -49,4 +48,15 @@
 	<label class="col-form-label" asp-for="Gender">Gender: </label>
 	<input asp-for="Gender" class="form-control" />
 	<span asp-validation-for="Gender" class="text-danger"></span>
+</div>
+<div>
+	<label class="col-form-label" asp-for="HireDate">HireDate: </label>
+	<input asp-for="HireDate" class="form-control" />
+	<span asp-validation-for="HireDate" class="text-danger"></span>
+</div>
+<div class="form-group">
+	<label class="col-form-label" asp-for="Department"></label>
+	<select class="form-control" asp-items="@departments" asp-for="DepartmentId">
+		<option value="null" hidden selected disabled>Select Department</option>
+	</select>
 </div>

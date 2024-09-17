@@ -31,7 +31,7 @@ namespace MVC.BLL.Repositories
 			return _dbContext.SaveChanges();
 		}
 
-		public IEnumerable<T> GetAll()
+		public virtual IEnumerable<T> GetAll()
 		{
 			return _dbContext.Set<T>().AsNoTracking().ToList();
 		}
