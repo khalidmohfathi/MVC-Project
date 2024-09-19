@@ -29,6 +29,7 @@ namespace MVC.DAL.Models
 		public string Address { get; set; }
 
 		public decimal Salary { get; set; }
+
 		public bool IsActive { get; set; }
 
 		public string Email { get; set; }
@@ -41,7 +42,10 @@ namespace MVC.DAL.Models
 
 		public Gender Gender { get; set; }
 
-        public Department Department { get; set; }
-        public int? DepartmentId { get; set; }
-    }
+		public string ImageName { get; set; }
+
+		public Department Department { get; set; }
+
+		public int? DepartmentId { get; set; }
+	}
 }

@@ -9,17 +9,17 @@ namespace MVC.PL.Controllers
 {
 	public class DepartmentController : Controller
 	{
-		private readonly IDepartmentRepository _repository;
+		private readonly IUnitOfWork _unitOfWork;
 		private readonly IWebHostEnvironment _env;
 
-		public DepartmentController(IDepartmentRepository repository, IWebHostEnvironment env)
+		public DepartmentController(IUnitOfWork unitOfWork, IWebHostEnvironment env)
 		{
-			_repository = repository;
+			_unitOfWork = unitOfWork;
 			_env = env;
 		}
 		public IActionResult Index()
 		{
-			var departments = _repository.GetAll();
+			var departments = _unitOfWork.DepartmentRepository.GetAll();
 			return View(departments);
 		}
 
@@ -34,7 +34,8 @@ namespace MVC.PL.Controllers
 		{
 			if (ModelState.IsValid)
 			{
-				var count = _repository.Add(dept);
+				_unitOfWork.DepartmentRepository.Add(dept);
+				var count = _unitOfWork.Complete();
 				if (count > 0)
 				{
 					return RedirectToAction(nameof(Index));
@@ -49,7 +50,7 @@ namespace MVC.PL.Controllers
 			{
 				return BadRequest();
 			}
-			var dept = _repository.GetById(id.Value);
+			var dept = _unitOfWork.DepartmentRepository.GetById(id.Value);
 			if (dept == null)
 			{
 				return NotFound();
@@ -60,16 +61,6 @@ namespace MVC.PL.Controllers
 		[HttpGet]
 		public IActionResult Update(int? id)
 		{
-			//if (!id.HasValue)
-			//{
-			//	return BadRequest();
-			//}
-			//var dept = _repository.GetById(id.Value);
-			//if (dept == null)
-			//{
-			//	return NotFound();
-			//}
-			//return View(dept);
 			return Details(id, "Update");
 		}
 
@@ -89,7 +80,8 @@ namespace MVC.PL.Controllers
 
 			try
 			{
-				var count = _repository.Update(dept);
+				_unitOfWork.DepartmentRepository.Update(dept);
+				var count = _unitOfWork.Complete();
 				return RedirectToAction(nameof(Index));
 			}
 			catch (Exception ex)
@@ -118,7 +110,8 @@ namespace MVC.PL.Controllers
 		{
 			try
 			{
-				_repository.Delete(dept);
+				_unitOfWork.DepartmentRepository.Delete(dept);
+				var count = _unitOfWork.Complete();
 				return RedirectToAction(nameof(Index));
 			}
 			catch (Exception ex)

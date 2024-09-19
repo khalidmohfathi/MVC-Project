@@ -4,21 +4,23 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using MVC.BLL.Interfaces;
 using MVC.DAL.Models;
+using MVC.PL.Helpers;
 using MVC.PL.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata;
 
 namespace MVC.PL.Controllers
 {
 	public class EmployeeController : Controller
 	{
-		private readonly IEmployeeRepository _repository;
+		private readonly IUnitOfWork _unitOfWork;
 		private readonly IWebHostEnvironment _env;
 		private readonly IMapper _mapper;
 
-		public EmployeeController(IEmployeeRepository repository, IWebHostEnvironment env, IMapper mapper)
+		public EmployeeController(IUnitOfWork unitOfWork, IWebHostEnvironment env, IMapper mapper)
 		{
-			_repository = repository;
+			_unitOfWork = unitOfWork;
 			_env = env;
 			_mapper = mapper;
 		}
@@ -27,13 +29,13 @@ namespace MVC.PL.Controllers
 			ViewBag.Message = "All Employees";
 			if (string.IsNullOrWhiteSpace(SearchInput))
 			{
-				var employees = _repository.GetAll();
+				var employees = _unitOfWork.EmployeeRepository.GetAll();
 				var mappedEmp = _mapper.Map<IEnumerable<Employee>, IEnumerable<EmployeeViewModel>>(employees);
 				return View(mappedEmp);
 			}
 			else
 			{
-				var employees = _repository.GetEmployeesByName(SearchInput);
+				var employees = _unitOfWork.EmployeeRepository.GetEmployeesByName(SearchInput);
 				var mappedEmp = _mapper.Map<IEnumerable<Employee>, IEnumerable<EmployeeViewModel>>(employees);
 				return View(mappedEmp);
 			}
@@ -50,8 +52,10 @@ namespace MVC.PL.Controllers
 		{
 			if (ModelState.IsValid)
 			{
+				emp.ImageName = DocumentSettings.UploadFile(emp.Image, "Images");
 				var mappedEmp = _mapper.Map<EmployeeViewModel, Employee>(emp);
-				var count = _repository.Add(mappedEmp);
+				_unitOfWork.EmployeeRepository.Add(mappedEmp);
+				var count = _unitOfWork.Complete();
 				if (count > 0)
 				{
 					TempData["Success"] = "Employee Created Successfully";
@@ -67,12 +71,13 @@ namespace MVC.PL.Controllers
 			{
 				return BadRequest();
 			}
-			var emp = _repository.GetById(id.Value);
+			var emp = _unitOfWork.EmployeeRepository.GetById(id.Value);
+			var mappedEmp = _mapper.Map<Employee, EmployeeViewModel>(emp);
 			if (emp == null)
 			{
 				return NotFound();
 			}
-			return View(ViewName, emp);
+			return View(ViewName, mappedEmp);
 		}
 
 		[HttpGet]
@@ -97,8 +102,10 @@ namespace MVC.PL.Controllers
 
 			try
 			{
+				emp.ImageName = DocumentSettings.UploadFile(emp.Image, "Images");
 				var mappedEmp = _mapper.Map<EmployeeViewModel, Employee>(emp);
-				var count = _repository.Update(mappedEmp);
+				_unitOfWork.EmployeeRepository.Update(mappedEmp);
+				_unitOfWork.Complete();
 				return RedirectToAction(nameof(Index));
 			}
 			catch (Exception ex)
@@ -128,7 +135,9 @@ namespace MVC.PL.Controllers
 			try
 			{
 				var mappedEmp = _mapper.Map<EmployeeViewModel, Employee>(emp);
-				_repository.Delete(mappedEmp);
+				_unitOfWork.EmployeeRepository.Delete(mappedEmp);
+				_unitOfWork.Complete();
+				DocumentSettings.DeleteFile(emp.ImageName, "Images");
 				return RedirectToAction(nameof(Index));
 			}
 			catch (Exception ex)

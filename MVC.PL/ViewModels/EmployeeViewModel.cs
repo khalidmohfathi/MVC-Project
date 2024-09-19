@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using System;
+using Microsoft.AspNetCore.Http;
 
 namespace MVC.PL.ViewModels
 {
@@ -49,7 +50,12 @@ namespace MVC.PL.ViewModels
 		public bool IsDeleted { get; set; }
 
 		public Gender Gender { get; set; }
-		public Department Department { get; set; }
+
+		public IFormFile Image { get; set; }
+
+        public string ImageName { get; set; }
+
+        public Department Department { get; set; }
 		public int? DepartmentId { get; set; }
 	}
 }
